@@ -1,15 +1,20 @@
-# Triage
+
 
 > Replace every `TODO`. One section per defect, nine in total.
 > For each one: what you saw, why it happened, what you changed, and how you
 > proved it is fixed. Paste real output — not a description of output.
 
 ## 1. `scripts/ingest.sh` is not executable
-**Symptom:** TODO
-**Cause:** TODO
-**Fix:** TODO
-**Proof:** TODO
-**Why `git update-index --chmod=+x` was also needed:** TODO
+
+**Symptom:** `ls -l scripts/ingest.sh` showed `-rw-r--r--`, and running `./scripts/ingest.sh` returned `Permission denied`.
+
+**Cause:** The executable permission bit was missing from `scripts/ingest.sh`.
+
+**Fix:** Ran `chmod +x scripts/ingest.sh` to add execute permission, then ran `git update-index --chmod=+x scripts/ingest.sh` so Git records the file as executable.
+
+**Proof:** `ls -l scripts/ingest.sh` now shows `-rwxr-xr-x`. Running `./scripts/ingest.sh` no longer gives `Permission denied`; it reaches the script and reports `line 10: $1: unbound variable`.
+
+**Why `git update-index --chmod=+x` was also needed:** `chmod +x` changes the permission on the local filesystem, while `git update-index --chmod=+x` tells Git to record the executable mode (`100755`) in the repository. This ensures the executable permission is preserved when the repository is cloned or checked out elsewhere.ø
 
 ## 2. Unquoted `$1` in `scripts/ingest.sh`
 **Symptom:** TODO
