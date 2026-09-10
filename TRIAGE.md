@@ -26,11 +26,15 @@
 
 **Proof:** After the fix, `bash scripts/ingest.sh "data/march orders.csv"` completed successfully and staged the file as `data/staging/march orders.csv`.
 
-## 3. Dockerfile copies source before installing dependencies
-**Symptom:** TODO
-**Cause:** TODO
-**Fix:** TODO
-**Proof (build output, before and after):** TODO
+## 3. Dockerfile reinstalls dependencies on every code change
+
+**Symptom:** A source-code change caused Docker to reinstall the Python dependencies. In the defective Dockerfile, the source was copied before `pip install`, so changing `api/app.py` invalidated the dependency installation layer.
+
+**Cause:** `COPY . .` was placed before `RUN pip install --no-cache-dir -r api/requirements.txt`. Docker therefore rebuilt the dependency layer whenever application source files changed.
+
+**Fix:** Copied `api/requirements.txt` before installing dependencies, then copied the rest of the application source. This allows Docker to reuse the dependency layer when only source code changes.
+
+**Proof:** With the defective Dockerfile, a source-code change caused `pip install` to run again and the build took **7.790s**. With the fixed Dockerfile, the source-code change produced `CACHED` for the `pip install` layer (`0.0s`), and the build completed in **4.231s**.
 
 ## 4. No `.dockerignore`
 **Symptom:** TODO
