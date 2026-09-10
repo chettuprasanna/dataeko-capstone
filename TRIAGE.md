@@ -16,11 +16,15 @@
 
 **Why `git update-index --chmod=+x` was also needed:** `chmod +x` changes the permission on the local filesystem, while `git update-index --chmod=+x` tells Git to record the executable mode (`100755`) in the repository. This ensures the executable permission is preserved when the repository is cloned or checked out elsewhere.ø
 
-## 2. Unquoted `$1` in `scripts/ingest.sh`
-**Symptom:** TODO
-**Cause:** TODO
-**Fix:** TODO
-**Proof:** TODO
+## 2. `scripts/ingest.sh` fails when the CSV path contains spaces
+
+**Symptom:** Running `bash scripts/ingest.sh "data/march orders.csv"` produced `binary operator expected`.
+
+**Cause:** Line 10 used `$1` without quotes. The shell split `data/march orders.csv` into multiple words when evaluating the file test.
+
+**Fix:** Changed `$1` to `"$1"` in the file existence check so the complete path is treated as one argument.
+
+**Proof:** After the fix, `bash scripts/ingest.sh "data/march orders.csv"` completed successfully and staged the file as `data/staging/march orders.csv`.
 
 ## 3. Dockerfile copies source before installing dependencies
 **Symptom:** TODO
